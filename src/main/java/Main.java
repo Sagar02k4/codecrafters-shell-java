@@ -9,8 +9,9 @@ public class Main {
         String command = sc.nextLine();
 
         while(command != "exit"){
-            System.out.println(command + ": command not found");
+            Syste.out.print("$ ");
             command = sc.nextLine();
+            System.out.println(command + ": command not found");
         }
     }
 }
