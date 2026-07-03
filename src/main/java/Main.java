@@ -13,7 +13,9 @@ public class Main {
             else if(command.equals("exit")){
                 break;
             }
-            System.out.println(command + ": command not found");
+            else{
+                System.out.println(command + ": command not found");
+            }
         }
     }
 }
