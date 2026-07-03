@@ -8,8 +8,9 @@ public class Main {
         while(true){
             System.out.print("$ ");
             String command = sc.nextLine();
-            if(command.startsWith("echo")){
+            if(command.startsWith("echo ")){
                 System.out.println(command.substring(5));
+            }
             else if(command.equals("exit")){
                 break;
             }
