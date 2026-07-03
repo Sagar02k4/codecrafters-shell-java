@@ -8,9 +8,9 @@ public class Main {
         while(true){
             System.out.print("$ ");
             String command = sc.nextLine();
-            if(command.startswith("echo")){
+            if(command.startsWith("echo")){
                 System.out.println(command.substring(5));
-            if(command.equals("exit")){
+            else if(command.equals("exit")){
                 break;
             }
             System.out.println(command + ": command not found");
