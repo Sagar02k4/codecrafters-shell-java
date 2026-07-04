@@ -12,8 +12,9 @@ public class Main {
 
             String command = input.indexOf(" ") == -1 ? input : input.substring(0, input.indexOf(" "));
             String remainder = input.indexOf(" ") == -1 ? "" : input.substring(input.indexOf(" ") + 1);
+            
             if(command.startsWith("echo ")){
-                System.out.println(command.substring(5));
+                System.out.println(remainder);
             }
             else if(command.equals("exit")){
                 break;
@@ -27,7 +28,7 @@ public class Main {
                 }
             }
             else{
-                System.out.println(command + ": not found");
+                System.out.println(command + ": command not found");
             }
         }
     }
