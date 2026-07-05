@@ -5,6 +5,16 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
 
+        // implemented type builtin
+        // need to implement
+        // pwd
+        // cd
+        // mkdir
+        // cat
+        // export
+        // which
+        // if statement
+        // exit status
         
         while(true){
             System.out.print("$ ");
@@ -31,5 +41,7 @@ public class Main {
                 System.out.println(command + ": command not found");
             }
         }
+        System.out.println("exit");
+
     }
 }
