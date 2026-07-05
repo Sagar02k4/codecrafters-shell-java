@@ -14,7 +14,7 @@ public class Main {
             String remainder = input.indexOf(" ") == -1 ? "" : input.substring(input.indexOf(" ") + 1);
             
             if(command.startsWith("echo ")){
-                System.out.println(remainder);
+                System.out.println(command.substring(5));
             }
             else if(command.equals("exit")){
                 break;
