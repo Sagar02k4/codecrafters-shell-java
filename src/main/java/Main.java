@@ -45,7 +45,7 @@ public class Main {
                 }
             }else if(getCommandPath(verb) != null){
                 Process process = new ProcessBuilder(parts).start();
-                process.getInputStream().transferIo(System.out);
+                process.getInputStream().transferTo(System.out);
                 process.waitFor();
             } 
             
