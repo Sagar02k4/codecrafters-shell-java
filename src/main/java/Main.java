@@ -93,7 +93,7 @@ public class Main {
         for(String pathDir : pathDirs){
             File file = new File(pathDir, command);
             if(file.exists() && file.canExecute()){
-                return file.getAbsoulutePath();
+                return file.getAbsolutePath();
             }
         }
         return null;
