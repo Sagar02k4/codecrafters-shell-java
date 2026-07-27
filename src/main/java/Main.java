@@ -43,7 +43,13 @@ public class Main {
                 } else {
                     System.out.println(type(parts[1]));
                 }
-            } else {
+            }else if(getCommandPath(verb) != null){
+                Process process = new ProcessBuilder(parts).start();
+                process.getInputStream().transferIo(System.out);
+                process.waitFor();
+            } 
+            
+            else {
                 System.out.println(command + ": command not found");
             }
         }
@@ -76,5 +82,20 @@ public class Main {
         }
 
         return command + ": not found";
+    }
+
+    public static String getCommandPath(String command){
+        String path = System.getenv("PATH");
+        if(path == null){
+            return null;
+        }
+        String[] pathDirs = path.split(File.pathSeparator);
+        for(String pathDir : pathDirs){
+            File file = new File(pathDir, command);
+            if(file.exists() && file.canExecute()){
+                return file.getAbsoulutePath();
+            }
+        }
+        return null;
     }
 }
