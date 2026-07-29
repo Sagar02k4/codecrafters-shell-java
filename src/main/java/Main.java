@@ -47,7 +47,10 @@ public class Main {
                 Process process = new ProcessBuilder(parts).start();
                 process.getInputStream().transferTo(System.out);
                 process.waitFor();
-            } 
+            }
+            else if(verb.equals("pwd")){
+                System.out.println(System.getProperty("user.dir"));
+            }
             
             else {
                 System.out.println(command + ": command not found");
