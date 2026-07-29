@@ -43,16 +43,13 @@ public class Main {
                 } else {
                     System.out.println(type(parts[1]));
                 }
-            }else if(getCommandPath(verb) != null){
+            } else if (verb.equals("pwd")) {
+                System.out.println(System.getProperty("user.dir"));
+            } else if (getCommandPath(verb) != null) {
                 Process process = new ProcessBuilder(parts).start();
                 process.getInputStream().transferTo(System.out);
                 process.waitFor();
-            }
-            else if(verb.equals("pwd")){
-                System.out.println(System.getProperty("user.dir"));
-            }
-            
-            else {
+            } else {
                 System.out.println(command + ": command not found");
             }
         }
@@ -61,7 +58,7 @@ public class Main {
     }
 
     public static String type(String command){
-        String[] commands = {"echo", "exit", "type"};
+        String[] commands = {"echo", "exit", "type", "pwd"};
         String path = System.getenv("PATH");
         if (path == null) {
             path = "";
