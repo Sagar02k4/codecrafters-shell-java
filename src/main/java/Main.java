@@ -46,26 +46,34 @@ public class Main {
             } else if (verb.equals("pwd")) {
                 System.out.println(System.getProperty("user.dir"));
             } else if (verb.equals("cd")) {
-                if (parts.length < 2) {
-                    System.out.println("cd: not enough arguments");
-                } else {
-                    File currentDir = new File(System.getProperty("user.dir"));
-                    File targetDir = new File(parts[1]);
+                String target = parts.length < 2 ? "~" : parts[1];
+                String homeDir = System.getenv("HOME");
+                if (homeDir == null || homeDir.isEmpty()) {
+                    homeDir = System.getProperty("user.home");
+                }
 
-                    if (!targetDir.isAbsolute()) {
-                        targetDir = new File(currentDir, parts[1]);
-                    }
+                if (target.equals("~")) {
+                    target = homeDir;
+                } else if (target.startsWith("~/")) {
+                    target = homeDir + target.substring(1);
+                }
 
-                    try {
-                        File resolvedDir = targetDir.getCanonicalFile();
-                        if (resolvedDir.exists() && resolvedDir.isDirectory()) {
-                            System.setProperty("user.dir", resolvedDir.getAbsolutePath());
-                        } else {
-                            System.out.println("cd: " + parts[1] + ": No such file or directory");
-                        }
-                    } catch (Exception e) {
+                File currentDir = new File(System.getProperty("user.dir"));
+                File targetDir = new File(target);
+
+                if (!targetDir.isAbsolute()) {
+                    targetDir = new File(currentDir, target);
+                }
+
+                try {
+                    File resolvedDir = targetDir.getCanonicalFile();
+                    if (resolvedDir.exists() && resolvedDir.isDirectory()) {
+                        System.setProperty("user.dir", resolvedDir.getAbsolutePath());
+                    } else {
                         System.out.println("cd: " + parts[1] + ": No such file or directory");
                     }
+                } catch (Exception e) {
+                    System.out.println("cd: " + parts[1] + ": No such file or directory");
                 }
             } else if (getCommandPath(verb) != null) {
                 Process process = new ProcessBuilder(parts)
