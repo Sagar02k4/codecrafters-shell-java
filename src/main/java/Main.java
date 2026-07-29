@@ -45,7 +45,22 @@ public class Main {
                 }
             } else if (verb.equals("pwd")) {
                 System.out.println(System.getProperty("user.dir"));
-            } else if (getCommandPath(verb) != null) {
+            }else if(verb.equals("cd")){
+                if(parts.length < 2){
+                    System.out.println("cd: not enough arguments");
+                }
+                else{
+                    File dir = new File(parts[1]);
+                    if(dir.exists() && dir.isDirectory()){
+                        System.setProperty("user.dir", dir.getAbsoluteFile().toString());
+                    }
+                    else{
+                        System.out.println("cd: " + parts[1] + ": No such file or directory");
+                    }
+                }
+            }
+            
+             else if (getCommandPath(verb) != null) {
                 Process process = new ProcessBuilder(parts).start();
                 process.getInputStream().transferTo(System.out);
                 process.waitFor();
@@ -58,7 +73,7 @@ public class Main {
     }
 
     public static String type(String command){
-        String[] commands = {"echo", "exit", "type", "pwd"};
+        String[] commands = {"echo", "exit", "type", "pwd", "cd"};
         String path = System.getenv("PATH");
         if (path == null) {
             path = "";
