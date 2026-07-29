@@ -45,23 +45,32 @@ public class Main {
                 }
             } else if (verb.equals("pwd")) {
                 System.out.println(System.getProperty("user.dir"));
-            }else if(verb.equals("cd")){
-                if(parts.length < 2){
+            } else if (verb.equals("cd")) {
+                if (parts.length < 2) {
                     System.out.println("cd: not enough arguments");
-                }
-                else{
-                    File dir = new File(parts[1]);
-                    if(dir.exists() && dir.isDirectory()){
-                        System.setProperty("user.dir", dir.getAbsoluteFile().toString());
+                } else {
+                    File currentDir = new File(System.getProperty("user.dir"));
+                    File targetDir = new File(parts[1]);
+
+                    if (!targetDir.isAbsolute()) {
+                        targetDir = new File(currentDir, parts[1]);
                     }
-                    else{
+
+                    try {
+                        File resolvedDir = targetDir.getCanonicalFile();
+                        if (resolvedDir.exists() && resolvedDir.isDirectory()) {
+                            System.setProperty("user.dir", resolvedDir.getAbsolutePath());
+                        } else {
+                            System.out.println("cd: " + parts[1] + ": No such file or directory");
+                        }
+                    } catch (Exception e) {
                         System.out.println("cd: " + parts[1] + ": No such file or directory");
                     }
                 }
-            }
-            
-             else if (getCommandPath(verb) != null) {
-                Process process = new ProcessBuilder(parts).start();
+            } else if (getCommandPath(verb) != null) {
+                Process process = new ProcessBuilder(parts)
+                        .directory(new File(System.getProperty("user.dir")))
+                        .start();
                 process.getInputStream().transferTo(System.out);
                 process.waitFor();
             } else {
