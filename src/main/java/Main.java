@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.io.File;
 import java.nio.file.Files;
@@ -26,14 +28,14 @@ public class Main {
                 continue;
             }
 
-            String[] parts = command.split("\\s+");
+            String[] parts = splitCommand(command);
             String verb = parts[0];
 
             if (verb.equals("echo")) {
                 if (parts.length == 1) {
                     System.out.println();
                 } else {
-                    System.out.println(command.substring(5));
+                    System.out.println(String.join(" ", java.util.Arrays.copyOfRange(parts, 1, parts.length)));
                 }
             } else if (verb.equals("exit")) {
                 break;
@@ -87,6 +89,41 @@ public class Main {
         }
         sc.close();
 
+    }
+
+    public static String[] splitCommand(String command) {
+        List<String> tokens = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inSingleQuotes = false;
+        boolean tokenStarted = false;
+
+        for (int i = 0; i < command.length(); i++) {
+            char ch = command.charAt(i);
+
+            if (ch == '\'') {
+                inSingleQuotes = !inSingleQuotes;
+                tokenStarted = true;
+                continue;
+            }
+
+            if (Character.isWhitespace(ch) && !inSingleQuotes) {
+                if (tokenStarted) {
+                    tokens.add(current.toString());
+                    current.setLength(0);
+                    tokenStarted = false;
+                }
+                continue;
+            }
+
+            current.append(ch);
+            tokenStarted = true;
+        }
+
+        if (tokenStarted) {
+            tokens.add(current.toString());
+        }
+
+        return tokens.toArray(new String[0]);
     }
 
     public static String type(String command){
