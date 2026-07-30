@@ -97,9 +97,22 @@ public class Main {
         boolean inSingleQuotes = false;
         boolean inDoubleQuotes = false;
         boolean tokenStarted = false;
+        boolean escapeNext = false;
 
         for (int i = 0; i < command.length(); i++) {
             char ch = command.charAt(i);
+
+            if (escapeNext) {
+                current.append(ch);
+                escapeNext = false;
+                tokenStarted = true;
+                continue;
+            }
+
+            if (ch == '\\' && !inSingleQuotes && !inDoubleQuotes) {
+                escapeNext = true;
+                continue;
+            }
 
             if (ch == '\'' && !inDoubleQuotes) {
                 inSingleQuotes = !inSingleQuotes;
