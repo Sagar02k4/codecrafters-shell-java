@@ -109,8 +109,12 @@ public class Main {
                 continue;
             }
 
-            if (ch == '\\' && !inSingleQuotes && !inDoubleQuotes) {
-                escapeNext = true;
+            if (ch == '\\' && !inSingleQuotes) {
+                if (inDoubleQuotes) {
+                    escapeNext = true;
+                } else {
+                    escapeNext = true;
+                }
                 continue;
             }
 
