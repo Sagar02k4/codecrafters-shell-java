@@ -34,16 +34,25 @@ public class Main {
             ParsedCommand parsedCommand = parseCommand(command);
             String[] parts = parsedCommand.arguments;
             String redirectTarget = parsedCommand.redirectTarget;
+            String stderrTarget = parsedCommand.stderrTarget;
             if (parts.length == 0) {
                 continue;
             }
 
             String verb = parts[0];
             PrintStream output = System.out;
+            PrintStream errOutput = System.err;
 
             if (redirectTarget != null) {
                 Path outputPath = Paths.get(redirectTarget);
                 output = new PrintStream(Files.newOutputStream(outputPath,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING,
+                        StandardOpenOption.WRITE));
+            }
+            if (stderrTarget != null) {
+                Path errorPath = Paths.get(stderrTarget);
+                errOutput = new PrintStream(Files.newOutputStream(errorPath,
                         StandardOpenOption.CREATE,
                         StandardOpenOption.TRUNCATE_EXISTING,
                         StandardOpenOption.WRITE));
@@ -60,7 +69,7 @@ public class Main {
                     break;
                 } else if (verb.equals("type")) {
                     if (parts.length < 2) {
-                        System.err.println("type: not enough arguments");
+                        errOutput.println("type: not enough arguments");
                     } else {
                         output.println(type(parts[1]));
                     }
@@ -91,16 +100,20 @@ public class Main {
                         if (resolvedDir.exists() && resolvedDir.isDirectory()) {
                             System.setProperty("user.dir", resolvedDir.getAbsolutePath());
                         } else {
-                            System.err.println("cd: " + parts[1] + ": No such file or directory");
+                            errOutput.println("cd: " + parts[1] + ": No such file or directory");
                         }
                     } catch (Exception e) {
-                        System.err.println("cd: " + parts[1] + ": No such file or directory");
+                        errOutput.println("cd: " + parts[1] + ": No such file or directory");
                     }
                 } else if (getCommandPath(verb) != null) {
                     ProcessBuilder processBuilder = new ProcessBuilder(parts)
                             .directory(new File(System.getProperty("user.dir")));
                     if (redirectTarget != null) {
                         processBuilder.redirectOutput(ProcessBuilder.Redirect.to(new File(redirectTarget)));
+                    }
+                    if (stderrTarget != null) {
+                        processBuilder.redirectError(ProcessBuilder.Redirect.to(new File(stderrTarget)));
+                    } else {
                         processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
                     }
                     Process process = processBuilder.start();
@@ -109,11 +122,14 @@ public class Main {
                     }
                     process.waitFor();
                 } else {
-                    System.err.println(command + ": command not found");
+                    errOutput.println(command + ": command not found");
                 }
             } finally {
                 if (redirectTarget != null) {
                     output.close();
+                }
+                if (stderrTarget != null) {
+                    errOutput.close();
                 }
             }
         }
@@ -129,6 +145,7 @@ public class Main {
         boolean tokenStarted = false;
         boolean escapeNext = false;
         String redirectTarget = null;
+        String stderrTarget = null;
 
         for (int i = 0; i < command.length(); i++) {
             char ch = command.charAt(i);
@@ -168,13 +185,13 @@ public class Main {
                     continue;
                 }
 
-                if (ch == '1' && i + 1 < command.length() && command.charAt(i + 1) == '>' && current.length() == 0) {
+                if ((ch == '1' || ch == '2') && i + 1 < command.length() && command.charAt(i + 1) == '>' && current.length() == 0) {
                     if (tokenStarted) {
                         tokens.add(current.toString());
                         current.setLength(0);
                         tokenStarted = false;
                     }
-                    tokens.add(">");
+                    tokens.add(ch == '2' ? "2>" : ">");
                     i++;
                     continue;
                 }
@@ -205,21 +222,28 @@ public class Main {
                     redirectTarget = tokens.get(i + 1);
                     i++;
                 }
+            } else if (token.equals("2>")) {
+                if (i + 1 < tokens.size()) {
+                    stderrTarget = tokens.get(i + 1);
+                    i++;
+                }
             } else {
                 arguments.add(token);
             }
         }
 
-        return new ParsedCommand(arguments.toArray(new String[0]), redirectTarget);
+        return new ParsedCommand(arguments.toArray(new String[0]), redirectTarget, stderrTarget);
     }
 
     public static class ParsedCommand {
         public final String[] arguments;
         public final String redirectTarget;
+        public final String stderrTarget;
 
-        public ParsedCommand(String[] arguments, String redirectTarget) {
+        public ParsedCommand(String[] arguments, String redirectTarget, String stderrTarget) {
             this.arguments = arguments;
             this.redirectTarget = redirectTarget;
+            this.stderrTarget = stderrTarget;
         }
     }
 
