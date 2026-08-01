@@ -35,6 +35,7 @@ public class Main {
             String[] parts = parsedCommand.arguments;
             String redirectTarget = parsedCommand.redirectTarget;
             String stderrTarget = parsedCommand.stderrTarget;
+            boolean appendRedirect = parsedCommand.appendRedirect;
             if (parts.length == 0) {
                 continue;
             }
@@ -47,7 +48,7 @@ public class Main {
                 Path outputPath = Paths.get(redirectTarget);
                 output = new PrintStream(Files.newOutputStream(outputPath,
                         StandardOpenOption.CREATE,
-                        StandardOpenOption.TRUNCATE_EXISTING,
+                        appendRedirect ? StandardOpenOption.APPEND : StandardOpenOption.TRUNCATE_EXISTING,
                         StandardOpenOption.WRITE));
             }
             if (stderrTarget != null) {
@@ -109,7 +110,11 @@ public class Main {
                     ProcessBuilder processBuilder = new ProcessBuilder(parts)
                             .directory(new File(System.getProperty("user.dir")));
                     if (redirectTarget != null) {
-                        processBuilder.redirectOutput(ProcessBuilder.Redirect.to(new File(redirectTarget)));
+                        if (appendRedirect) {
+                            processBuilder.redirectOutput(ProcessBuilder.Redirect.appendTo(new File(redirectTarget)));
+                        } else {
+                            processBuilder.redirectOutput(ProcessBuilder.Redirect.to(new File(redirectTarget)));
+                        }
                     }
                     if (stderrTarget != null) {
                         processBuilder.redirectError(ProcessBuilder.Redirect.to(new File(stderrTarget)));
@@ -146,6 +151,7 @@ public class Main {
         boolean escapeNext = false;
         String redirectTarget = null;
         String stderrTarget = null;
+        boolean appendRedirect = false;
 
         for (int i = 0; i < command.length(); i++) {
             char ch = command.charAt(i);
@@ -181,7 +187,12 @@ public class Main {
                         current.setLength(0);
                         tokenStarted = false;
                     }
-                    tokens.add(">");
+                    if (i + 1 < command.length() && command.charAt(i + 1) == '>') {
+                        tokens.add(">>");
+                        i++;
+                    } else {
+                        tokens.add(">" );
+                    }
                     continue;
                 }
 
@@ -220,6 +231,13 @@ public class Main {
             if (token.equals(">")) {
                 if (i + 1 < tokens.size()) {
                     redirectTarget = tokens.get(i + 1);
+                    appendRedirect = false;
+                    i++;
+                }
+            } else if (token.equals(">>")) {
+                if (i + 1 < tokens.size()) {
+                    redirectTarget = tokens.get(i + 1);
+                    appendRedirect = true;
                     i++;
                 }
             } else if (token.equals("2>")) {
@@ -232,18 +250,20 @@ public class Main {
             }
         }
 
-        return new ParsedCommand(arguments.toArray(new String[0]), redirectTarget, stderrTarget);
+        return new ParsedCommand(arguments.toArray(new String[0]), redirectTarget, stderrTarget, appendRedirect);
     }
 
     public static class ParsedCommand {
         public final String[] arguments;
         public final String redirectTarget;
         public final String stderrTarget;
+        public final boolean appendRedirect;
 
-        public ParsedCommand(String[] arguments, String redirectTarget, String stderrTarget) {
+        public ParsedCommand(String[] arguments, String redirectTarget, String stderrTarget, boolean appendRedirect) {
             this.arguments = arguments;
             this.redirectTarget = redirectTarget;
             this.stderrTarget = stderrTarget;
+            this.appendRedirect = appendRedirect;
         }
     }
 
