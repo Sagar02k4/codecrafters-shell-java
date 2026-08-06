@@ -15,6 +15,29 @@
         <java.version>26</java.version>
     </properties>
 
+    <dependencies>
+        <!-- The core terminal module -->
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal</artifactId>
+            <version>3.30.0</version>
+        </dependency>
+        
+        <!-- The reader module (handles LineReader and Completer) -->
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-reader</artifactId>
+            <version>3.30.0</version>
+        </dependency>
+        
+        <!-- Jansi provides native Windows terminal support -->
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal-jansi</artifactId>
+            <version>3.30.0</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>

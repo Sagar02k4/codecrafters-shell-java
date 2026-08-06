@@ -1,17 +1,35 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jline.reader.Completer;
+import org.jline.reader.EndOfFileException;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
+import org.jline.reader.impl.completer.StringsCompleter;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 
 public class Main {
     public static void main(String[] args) throws Exception {
 
-        Scanner sc = new Scanner(System.in);
+        //this creates a terminal
+        Terminal terminal = TerminalBuilder.builder().system(true).build();
+
+        //this creates a completer with commands that we want to complete
+        Completer builtCompleter = new StringsCompleter("echo", "exit", "type", "pwd", "cd");
+
+        //this creates a line reader with the terminal and completer
+        LineReader lineReader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .completer(builtCompleter)
+                .build();
 
         // implemented type builtin
         // need to implement
@@ -25,8 +43,17 @@ public class Main {
         // exit status
         
         while(true){
-            System.out.print("$ ");
-            String command = sc.nextLine().trim();
+            
+            String command;
+            try{
+                //this reads a line from the terminal with the prompt "$ "
+                command = lineReader.readLine("$ ").trim();
+            }
+            catch(UserInterruptException | EndOfFileException e){
+                //this handles the exit if user press Ctrl+C or Ctrl+D
+                break;
+            }
+
             if (command.isEmpty()) {
                 continue;
             }
@@ -143,7 +170,6 @@ public class Main {
                 }
             }
         }
-        sc.close();
 
     }
 
