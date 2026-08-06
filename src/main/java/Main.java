@@ -12,7 +12,6 @@ import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
-import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
@@ -22,13 +21,11 @@ public class Main {
         //this creates a terminal
         Terminal terminal = TerminalBuilder.builder().system(true).build();
 
-        //this creates a completer with commands that we want to complete
-        Completer builtCompleter = new StringsCompleter("echo", "exit", "type", "pwd", "cd");
-
-        //this creates a line reader with the terminal and completer
+        // Create our custom completer!
+        Completer shellCompleter = new ShellCompleter();
         LineReader lineReader = LineReaderBuilder.builder()
                 .terminal(terminal)
-                .completer(builtCompleter)
+                .completer(shellCompleter)
                 .build();
 
         // implemented type builtin
